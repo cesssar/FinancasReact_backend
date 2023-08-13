@@ -1,2 +1,6 @@
 __pycache__/
 api/__pycache__/
+db/
+venv/
+api/venv/
+classes/__pycache__/

@@ -7,3 +7,23 @@ services:
       context: .
     ports:
       - 5000:5000
+
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart:  always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'Ozzy666'
+      MYSQL_DATABASE: 'financas'
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart:  always
+    ports:
+      -  8080:80
+    environment:
+      PMA_ARBITRARY: 1

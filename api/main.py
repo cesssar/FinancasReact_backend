@@ -1,10 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import json
 
 from mock import *
+from classes.database import *
+from classes.models import *
+from classes.schemas import *
+from classes.crud import *
 
 app = FastAPI()
 
@@ -19,6 +23,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+session: Session = SessionLocal()
+
+@app.get("/usuarios/", response_model=UsuarioInfo, tags=["API"])
+def lista_usuarios(limit: int = 10, offset: int = 0):
+    lista = get_usuarios(session, limit, offset)
+    return {"limit": limit, "offset": offset, "data": lista}
+
+@app.get("/categorias/", response_model=CategoriaInfo, tags=["API"])
+def lista_categorias(id_usuario: int):
+    lista = get_categorias(session, id_usuario)
+    return {"data" : lista}
+
+@app.get("/contas/", response_model=ContaInfo, tags=["API"])
+def lista_contas(id_usuario: int):
+    lista = get_contas(session, id_usuario)
+    return {"data" : lista}
+
+@app.get("/cartoescredito/", response_model=CartaoCreditoInfo, tags=["API"])
+def lista_cartoes_credito(id_usuario: int):
+    lista = get_cartaocredito(session, id_usuario)
+    return {"data" : lista}
+
+
+
+
 
 @app.get("/saldos/contacorrente", tags=["Saldos"])
 def saldo_conta_corrente():
