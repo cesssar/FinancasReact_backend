@@ -1,14 +1,13 @@
-from fastapi import FastAPI, Depends
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, status, Depends, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
-import json
+from sqlalchemy.orm import Session
 
 from mock import *
 from classes.database import *
 from classes.models import *
 from classes.schemas import *
-from classes.crud import *
+from classes.excecoes import *
+from classes.repositories import *
 
 app = FastAPI()
 
@@ -24,29 +23,87 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-session: Session = SessionLocal()
 
-@app.get("/usuarios/", response_model=UsuarioInfo, tags=["API"])
-def lista_usuarios(limit: int = 10, offset: int = 0):
-    lista = get_usuarios(session, limit, offset)
-    return {"limit": limit, "offset": offset, "data": lista}
+@app.get("/cadastros/conta", response_model=list[ContaResponse], tags=["API"])
+def listar_conta(db: Session = Depends(get_db)):
+    contas = ContaRepository.listar(db)
+    return [ContaResponse.from_orm(conta) for conta in contas]
 
-@app.get("/categorias/", response_model=CategoriaInfo, tags=["API"])
-def lista_categorias(id_usuario: int):
-    lista = get_categorias(session, id_usuario)
-    return {"data" : lista}
+@app.post("/cadastros/conta", response_model=ContaResponse, status_code=status.HTTP_201_CREATED, tags=["API"])
+def criar_conta(request: ContaRequest, db: Session = Depends(get_db)):
+    conta = ContaRepository.salvar(db, Conta(**request.model_dump()))
+    return ContaResponse.from_orm(conta)
 
-@app.get("/contas/", response_model=ContaInfo, tags=["API"])
-def lista_contas(id_usuario: int):
-    lista = get_contas(session, id_usuario)
-    return {"data" : lista}
+@app.delete("/cadastros/conta/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["API"])
+def delete_conta(id: int, db: Session = Depends(get_db)):
+    if not ContaRepository.localizar(db, id):
+        raise HTTPException(
+           status_code=status.HTTP_404_NOT_FOUND, detail="Conta não encontrada" 
+        )
+    if not ContaRepository.deletar(db, id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Conta com saldo positivo"
+        )
+    return Response(status_code=status.HTTP_200_OK)
 
-@app.get("/cartoescredito/", response_model=CartaoCreditoInfo, tags=["API"])
-def lista_cartoes_credito(id_usuario: int):
-    lista = get_cartaocredito(session, id_usuario)
-    return {"data" : lista}
+@app.put("/cadastros/conta/{id}/{valor}", tags=["API"])
+def debitar_creditar(id: int, valor: float, db: Session = Depends(get_db)):
+    if not ContaRepository.localizar(db, id):
+        raise HTTPException(
+           status_code=status.HTTP_404_NOT_FOUND, detail="Conta não encontrada" 
+        )
+    if not ContaRepository.debitar_creditar(db, id, valor):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Conta com saldo insuficiente"
+        )
+    return Response(status_code=status.HTTP_200_OK)
 
 
+@app.get("/cadastros/cartaocredito", response_model=list[CartaoCreditoResponse], tags=["API"])
+def listar_cartaocredito(db: Session = Depends(get_db)):
+    contas = CartaoCreditoRepository.listar(db)
+    return [CartaoCreditoResponse.from_orm(conta) for conta in contas]
+
+@app.post("/cadastros/cartaocredito", response_model=CartaoCreditoResponse, status_code=status.HTTP_201_CREATED, tags=["API"])
+def criar_cartao(request: CartaoCreditoRequest, db: Session = Depends(get_db)):
+    conta = CartaoCreditoRepository.salvar(db, Conta(**request.model_dump()))
+    return CartaoCreditoRepository.from_orm(conta)
+
+@app.delete("/cadastros/cartaocredito/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["API"])
+def delete_cartao(id: int, db: Session = Depends(get_db)):
+    if not CartaoCreditoRepository.localizar(db, id):
+        raise HTTPException(
+           status_code=status.HTTP_404_NOT_FOUND, detail="Cartão não localizado" 
+        )
+    if not CartaoCreditoRepository.deletar(db, id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Cartão com limite e/ou com fatura"
+        )
+    return Response(status_code=status.HTTP_200_OK)
+
+@app.put("/cadastros/cartaocredito/{id}/{valor}", tags=["API"])
+def lancar(id: int, valor: float, db: Session = Depends(get_db)):
+    if not CartaoCreditoRepository.localizar(db, id):
+        raise HTTPException(
+           status_code=status.HTTP_404_NOT_FOUND, detail="Cartão não localizado" 
+        )
+    if not CartaoCreditoRepository.lancar(db, id, valor):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Cartão com limite insuficiente"
+        )
+    return Response(status_code=status.HTTP_200_OK)
+
+@app.put("/cadastros/cartaocredito/pagarfatura/{id}/{valor}", tags=["API"])
+def pagar(id: int, valor: float, db: Session = Depends(get_db)):
+    if not CartaoCreditoRepository.localizar(db, id):
+        raise HTTPException(
+           status_code=status.HTTP_404_NOT_FOUND, detail="Cartão não localizado" 
+        )
+    if not CartaoCreditoRepository.pagar(db, id, valor):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Valor superior ao valor da fatura"
+        )
+    return Response(status_code=status.HTTP_200_OK)
 
 
 
