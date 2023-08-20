@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy import Column, Integer, String, Float, Date
 
 from classes.database import Base
 
@@ -31,13 +31,14 @@ class Conta(Base):
     banco = Column(String)
     saldo = Column(Float)
 
-class Transacao(Base):
-    __tablename__ = "transacao"
+class Lancamento(Base):
+    __tablename__ = "lancamento"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    data = Column(DateTime)
+    data = Column(Date)
     id_conta = Column(Integer)
     id_credito = Column(Integer)
     id_categoria = Column(Integer)
     numero_parcelas = Column(Integer)
     valor = Column(Float)
+    observacao = Column(String)
 
