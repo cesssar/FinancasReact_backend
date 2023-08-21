@@ -4,3 +4,6 @@ db/
 venv/
 api/venv/
 classes/__pycache__/
+.env
+api/.env
+api/auth/__pycache__/
