@@ -17,6 +17,7 @@ class CartaoCredito(Base):
     limite = Column(Float)
     fatura_atual = Column(Float)
     dia_corte = Column(Integer)
+    tipo = Column(String)
 
 class Categoria(Base):
     __tablename__ = "categoria"
@@ -41,4 +42,5 @@ class Lancamento(Base):
     numero_parcelas = Column(Integer)
     valor = Column(Float)
     observacao = Column(String)
+    id_usuario = Column(Integer)
 

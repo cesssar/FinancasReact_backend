@@ -1,4 +1,4 @@
 import uvicorn
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=666, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=True, ssl_keyfile="./cert/chave.key", ssl_certfile="./cert/steinmeier.crt")

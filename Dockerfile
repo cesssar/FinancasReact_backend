@@ -12,4 +12,4 @@ RUN apt-get clean
 
 RUN pip cache purge
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000", "--ssl-keyfile", "./cert/chave.key", "--ssl-certfile", "./cert/steinmeier.crt"]

@@ -1,13 +1,31 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import extract 
+from sqlalchemy import func
 
 from classes.models import *
+
+class UsuarioRepository:
+
+    @staticmethod
+    def login(db: Session, login: str, senha: str) -> int:
+        id = db.query(Usuario.id).filter(Usuario.login == login, Usuario.senha == senha).first()
+        if id is not None:
+            return id[0]
+        
+    def getId(db: Session, login: str) -> int:
+        id = db.query(Usuario.id).filter(Usuario.login == login).first()
+        if id is not None:
+            return id[0]
 
 class ContaRepository:
 
     @staticmethod
-    def listar(db: Session) -> list[Conta]:
-        return db.query(Conta).all()
+    def saldo(db: Session, idUsuario: int) -> float:
+        saldo = db.query(func.sum(Conta.saldo)).filter(Conta.id_usuario == idUsuario)
+        return saldo.scalar()
+
+    @staticmethod
+    def listar(db: Session, idUsuario:int) -> list[Conta]:
+        return db.query(Conta).filter(Conta.id_usuario == idUsuario).all()
     
     @staticmethod
     def salvar(db: Session, conta: Conta) -> Conta:
@@ -46,8 +64,18 @@ class ContaRepository:
 class CartaoCreditoRepository:
 
     @staticmethod
-    def listar(db: Session) -> list[CartaoCredito]:
-        return db.query(CartaoCredito).all()
+    def fatura_atual(db: Session, idUsuario: int) -> float:
+        fatura_atual = db.query(func.sum(CartaoCredito.fatura_atual)).filter(CartaoCredito.id_usuario == idUsuario, CartaoCredito.tipo == 'c')
+        return fatura_atual.scalar()
+    
+    @staticmethod
+    def limite_credito(db: Session, idUsuario: int, tipo: str) -> float:
+        limite = db.query(func.sum(CartaoCredito.limite)).filter(CartaoCredito.id_usuario == idUsuario, CartaoCredito.tipo == tipo)
+        return limite.scalar()
+
+    @staticmethod
+    def listar(db: Session, id_usuario: int) -> list[CartaoCredito]:
+        return db.query(CartaoCredito).filter(CartaoCredito.id_usuario == id_usuario).all()
     
     @staticmethod
     def salvar(db: Session, cartao: CartaoCredito) -> CartaoCredito:
@@ -99,8 +127,8 @@ class CartaoCreditoRepository:
 class CategoriaRepository:
 
     @staticmethod
-    def listar(db: Session) -> list[Categoria]:
-        return db.query(Categoria).all()
+    def listar(db: Session, id_usuario: int) -> list[Categoria]:
+        return db.query(Categoria).filter(Categoria.id_usuario == id_usuario).all()
     
     @staticmethod
     def localizar(db: Session, id: int) -> Categoria:
@@ -130,9 +158,9 @@ class CategoriaRepository:
 class LancamentoRepository:
 
     @staticmethod
-    def listar(db: Session, mes: int, ano: int) -> list[Lancamento]:
+    def listar(db: Session, mes: int, ano: int, id_usuario: int) -> list[Lancamento]:
         lancamentos = []
-        result = db.query(Lancamento, Conta, Categoria).filter(Lancamento.id_conta == Conta.id, Categoria.id == Lancamento.id_categoria, extract('month', Lancamento.data) == 8, extract('year', Lancamento.data) == 2023).all()
+        result = db.query(Lancamento, Conta, Categoria).filter(Lancamento.id_conta == Conta.id, Categoria.id == Lancamento.id_categoria, extract('month', Lancamento.data) == mes, extract('year', Lancamento.data) == ano, Lancamento.id_usuario == id_usuario).all()
         for l, c, ca in result:
             linha = {
                 "data": l.data.strftime('%Y-%m-%d'),
@@ -143,7 +171,7 @@ class LancamentoRepository:
                 "observacao": l.observacao
             }
             lancamentos.append(linha)
-        result = db.query(Lancamento, CartaoCredito, Categoria).filter(Lancamento.id_credito == CartaoCredito.id, Categoria.id == Lancamento.id_categoria, extract('month', Lancamento.data) == 8, extract('year', Lancamento.data) == 2023).all()
+        result = db.query(Lancamento, CartaoCredito, Categoria).filter(Lancamento.id_credito == CartaoCredito.id, Categoria.id == Lancamento.id_categoria, extract('month', Lancamento.data) == mes, extract('year', Lancamento.data) == ano, Lancamento.id_usuario == id_usuario).all()
         for l, c, ca in result:
             linha = {
                 "data": l.data.strftime('%Y-%m-%d'),
