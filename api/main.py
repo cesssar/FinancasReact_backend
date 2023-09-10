@@ -215,7 +215,7 @@ def criar_lancamento(r: Request, request: LancamentoRequest, db: Session = Depen
         )
     return Response(status_code=status.HTTP_201_CREATED)
 
-@app.delete("/cadastros/lancamento/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Lançamento"],  summary="Deleta uma categoria sem uso", dependencies=[Depends(JWTBearer())])
+@app.delete("/cadastros/lancamento/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Lançamento"],  summary="Deleta um lançamento", dependencies=[Depends(JWTBearer())])
 def deletar_lancamento(id: int, db: Session = Depends(get_db)):
     if not LancamentoRepository.localizar(db, id):
         raise HTTPException(

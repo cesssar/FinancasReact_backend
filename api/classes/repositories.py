@@ -259,7 +259,7 @@ class LancamentoRepository:
     
     @staticmethod
     def deletar(db: Session, id: int) -> bool:
-        lancamento = db.query(Lancamento).filter(Lancamento.id == id).all()
+        lancamento = db.query(Lancamento).filter(Lancamento.id == id).first()
         if lancamento is not None:
             db.delete(lancamento)
             db.commit()
