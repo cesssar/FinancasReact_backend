@@ -168,7 +168,8 @@ class LancamentoRepository:
                 "categoria": ca.categoria,
                 "numero_parcelas": l.numero_parcelas,
                 "valor": l.valor,
-                "observacao": l.observacao
+                "observacao": l.observacao,
+                "id": l.id
             }
             lancamentos.append(linha)
         result = db.query(Lancamento, CartaoCredito, Categoria).filter(Lancamento.id_credito == CartaoCredito.id, Categoria.id == Lancamento.id_categoria, extract('month', Lancamento.data) == mes, extract('year', Lancamento.data) == ano, Lancamento.id_usuario == id_usuario).all()
@@ -179,7 +180,8 @@ class LancamentoRepository:
                 "categoria": ca.categoria,
                 "numero_parcelas": l.numero_parcelas,
                 "valor": l.valor,
-                "observacao": l.observacao
+                "observacao": l.observacao,
+                "id": l.id
             }
             lancamentos.append(linha)
         return lancamentos
