@@ -186,6 +186,34 @@ class LancamentoRepository:
             lancamentos.append(linha)
         return lancamentos
 
+    @staticmethod
+    def get_lancamento(db: Session, id: int) -> list[Lancamento]:
+        lancamentos = []
+        result = db.query(Lancamento, Conta, Categoria).filter(Lancamento.id_conta == Conta.id, Categoria.id == Lancamento.id_categoria, Lancamento.id == id).all()
+        for l, c, ca in result:
+            linha = {
+                "data": l.data.strftime('%d/%m'),
+                "banco": c.banco,
+                "categoria": ca.categoria,
+                "numero_parcelas": l.numero_parcelas,
+                "valor": l.valor,
+                "observacao": l.observacao,
+                "id": l.id
+            }
+            lancamentos.append(linha)
+        result = db.query(Lancamento, CartaoCredito, Categoria).filter(Lancamento.id_credito == CartaoCredito.id, Categoria.id == Lancamento.id_categoria, Lancamento.id == id).all()
+        for l, c, ca in result:
+            linha = {
+                "data": l.data.strftime('%d/%m'),
+                "cartao_credito": c.banco,
+                "categoria": ca.categoria,
+                "numero_parcelas": l.numero_parcelas,
+                "valor": l.valor,
+                "observacao": l.observacao,
+                "id": l.id
+            }
+            lancamentos.append(linha)
+        return lancamentos
 
     @staticmethod
     def localizar(db: Session, id: int) -> Lancamento:

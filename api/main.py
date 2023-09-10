@@ -198,6 +198,11 @@ def listar_lancamento(r: Request, mes: int, ano: int, db: Session = Depends(get_
     l = LancamentoRepository.listar(db, mes, ano, id_usuario)
     return jsonable_encoder(l)
 
+@app.get("/cadastros/lancamento/{id}", tags=["Lançamento"],  summary="Retorna detalhes de um lançamento", dependencies=[Depends(JWTBearer())])
+def get_lancamento(r: Request, id: int, db: Session = Depends(get_db)):
+    l = LancamentoRepository.get_lancamento(db, id)
+    return jsonable_encoder(l)
+
 @app.post("/cadastros/lancamento", status_code=status.HTTP_201_CREATED, tags=["Lançamento"],  summary="Cadatra um novo lançamento", dependencies=[Depends(JWTBearer())])
 def criar_lancamento(r: Request, request: LancamentoRequest, db: Session = Depends(get_db)):
     id_usuario = get_userId(db, r)
