@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, extract
 
 from classes.models import *
 
@@ -163,7 +163,7 @@ class LancamentoRepository:
         result = db.query(Lancamento, Conta, Categoria).filter(Lancamento.id_conta == Conta.id, Categoria.id == Lancamento.id_categoria, extract('month', Lancamento.data) == mes, extract('year', Lancamento.data) == ano, Lancamento.id_usuario == id_usuario).all()
         for l, c, ca in result:
             linha = {
-                "data": l.data.strftime('%Y-%m-%d'),
+                "data": l.data.strftime('%d/%m'),
                 "banco": c.banco,
                 "categoria": ca.categoria,
                 "numero_parcelas": l.numero_parcelas,
@@ -174,7 +174,7 @@ class LancamentoRepository:
         result = db.query(Lancamento, CartaoCredito, Categoria).filter(Lancamento.id_credito == CartaoCredito.id, Categoria.id == Lancamento.id_categoria, extract('month', Lancamento.data) == mes, extract('year', Lancamento.data) == ano, Lancamento.id_usuario == id_usuario).all()
         for l, c, ca in result:
             linha = {
-                "data": l.data.strftime('%Y-%m-%d'),
+                "data": l.data.strftime('%d/%m'),
                 "cartao_credito": c.banco,
                 "categoria": ca.categoria,
                 "numero_parcelas": l.numero_parcelas,
