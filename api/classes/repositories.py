@@ -147,7 +147,8 @@ class CategoriaRepository:
     def deletar(db: Session, id: int) -> bool:
         categoria = db.query(Categoria).filter(Categoria.id == id).first()
         lancamento = db.query(Lancamento).filter(Lancamento.id_categoria == id).all()
-        if lancamento is None:
+        print(len(lancamento))
+        if len(lancamento) == 0 and categoria is not None:
             db.delete(categoria)
             db.commit()
             return True
