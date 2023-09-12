@@ -8,6 +8,7 @@ from classes.database import *
 from classes.models import *
 from classes.schemas import *
 from classes.repositories import *
+from classes.extrairdados import *
 
 from auth.auth_bearer import *
 from auth.auth_handler import *
@@ -226,3 +227,9 @@ def deletar_lancamento(id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_409_CONFLICT, detail="Houve um erro ao tentar deletar o lançamento"
         )
     return Response(status_code=status.HTTP_200_OK)
+
+
+@app.post("/cadastros/qrcode/" , tags=["Lançamento"],  summary="", dependencies=[Depends(JWTBearer())])
+def qrcode(request: QrcodeRequest):
+    dados = ExtrairDados(str(request.link)).extrair()
+    return str(dados)

@@ -99,3 +99,7 @@ class LancamentoResponse(LancamentoBase):
     id: int
     class Config:
         from_attributes = True
+
+
+class QrcodeRequest(BaseModel):
+    link: str
