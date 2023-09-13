@@ -87,7 +87,6 @@ class LancamentoBase(BaseModel):
     id_conta: int
     id_credito: int
     id_categoria: int
-    numero_parcelas: int
     valor: float
     observacao: str
     id_usuario: int
@@ -103,3 +102,7 @@ class LancamentoResponse(LancamentoBase):
 
 class QrcodeRequest(BaseModel):
     link: str
+    data_lancamento: datetime.date
+    categoria: int
+    conta: int
+    cartao: int

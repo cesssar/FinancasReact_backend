@@ -48,7 +48,6 @@ class ExtrairDados:
         try:
             return requests.get(self.__monta_link(), headers=headers).text
         except Exception as e:
-            print('_requisicao',e)
             return None
         
     def __extrair_tabela(self):
@@ -67,7 +66,6 @@ class ExtrairDados:
                     copiar = True
             return conteudo
         except Exception as e:
-            print('_extrair_tabela',e)
             return None
         
     def extrair(self):

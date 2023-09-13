@@ -39,7 +39,6 @@ class Lancamento(Base):
     id_conta = Column(Integer)
     id_credito = Column(Integer)
     id_categoria = Column(Integer)
-    numero_parcelas = Column(Integer)
     valor = Column(Float)
     observacao = Column(String)
     id_usuario = Column(Integer)

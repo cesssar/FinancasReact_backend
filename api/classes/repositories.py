@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
+import json
 
 from classes.models import *
+from classes.schemas import QrcodeRequest, LancamentoRequest
 
 class UsuarioRepository:
 
@@ -167,7 +169,6 @@ class LancamentoRepository:
                 "data": l.data.strftime('%d/%m'),
                 "banco": c.banco,
                 "categoria": ca.categoria,
-                "numero_parcelas": l.numero_parcelas,
                 "valor": l.valor,
                 "observacao": l.observacao,
                 "id": l.id
@@ -179,7 +180,6 @@ class LancamentoRepository:
                 "data": l.data.strftime('%d/%m'),
                 "cartao_credito": c.banco,
                 "categoria": ca.categoria,
-                "numero_parcelas": l.numero_parcelas,
                 "valor": l.valor,
                 "observacao": l.observacao,
                 "id": l.id
@@ -196,7 +196,6 @@ class LancamentoRepository:
                 "data": l.data.strftime('%d/%m'),
                 "banco": c.banco,
                 "categoria": ca.categoria,
-                "numero_parcelas": l.numero_parcelas,
                 "valor": l.valor,
                 "observacao": l.observacao,
                 "id": l.id
@@ -208,7 +207,6 @@ class LancamentoRepository:
                 "data": l.data.strftime('%d/%m'),
                 "cartao_credito": c.banco,
                 "categoria": ca.categoria,
-                "numero_parcelas": l.numero_parcelas,
                 "valor": l.valor,
                 "observacao": l.observacao,
                 "id": l.id
@@ -234,28 +232,25 @@ class LancamentoRepository:
                 return "Categoria não localizada."
             elif lancamento.valor is None or lancamento.valor < 0:
                 return "Informar valor superior a zero."
-            elif lancamento.numero_parcelas is None or lancamento.numero_parcelas < 0:
-                return "Informar no mínimo uma parcela."
             elif conta is not None and conta.saldo < lancamento.valor:
                 return "Saldo da conta insuficiente."
             elif cartao is not None and cartao.limite < lancamento.valor:
                 return "Limite do cartão insuficiente."
-            elif conta is not None:
-                if conta.saldo >= lancamento.valor:
-                    conta.saldo -= lancamento.valor
-                    db.merge(conta)
-                    db.commit()
-                    db.add(lancamento)
-                    db.commit()
-                    return "ok"
-            elif cartao is not None:
-                if cartao.limite >= lancamento.valor:
-                    cartao.limite -= lancamento.valor
-                    db.merge(cartao)
-                    db.commit()
-                    db.add(lancamento)
-                    db.commit()
-                    return "ok"
+            elif conta is not None and conta.saldo >= lancamento.valor:
+                conta.saldo -= lancamento.valor
+                db.merge(conta)
+                db.commit()
+                db.add(lancamento)
+                db.commit()
+                return "ok"
+            elif cartao is not None and cartao.limite >= lancamento.valor:
+                cartao.limite -= lancamento.valor
+                cartao.fatura_atual += lancamento.valor
+                db.merge(cartao)
+                db.commit()
+                db.add(lancamento)
+                db.commit()
+                return "ok"
         return "Houve um erro ao salvar o lançamento."
     
     @staticmethod
@@ -266,3 +261,31 @@ class LancamentoRepository:
             db.commit()
             return True
         return False
+    
+    @staticmethod
+    def salvarQrcode(db: Session, dados: dict, id_usuario: int, request: QrcodeRequest) -> bool:
+        valorTotal = 0
+        conta = db.query(Conta).filter(Conta.id == request.conta).first()
+        cartao = db.query(CartaoCredito).filter(CartaoCredito.id == request.cartao).first()
+        for item in json.loads(dados):
+            valorTotal += float(item["preco"])
+        if conta is not None and valorTotal > conta.saldo:
+            return False
+        if cartao is not None and cartao.limite < valorTotal:
+            return False
+        try:
+            for item in json.loads(dados):
+                l = LancamentoRequest(
+                    data=request.data_lancamento,
+                    id_conta=request.conta,
+                    id_credito=request.cartao,
+                    id_categoria=request.categoria,
+                    valor=item["preco"],
+                    observacao= item["produto"],
+                    id_usuario=id_usuario
+                )
+                lancamento = Lancamento(**l.model_dump())
+                LancamentoRepository.salvar(db, lancamento)
+            return True
+        except:
+            return False

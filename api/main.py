@@ -230,6 +230,10 @@ def deletar_lancamento(id: int, db: Session = Depends(get_db)):
 
 
 @app.post("/cadastros/qrcode/" , tags=["Lançamento"],  summary="", dependencies=[Depends(JWTBearer())])
-def qrcode(request: QrcodeRequest):
+def qrcode(r: Request,request: QrcodeRequest, db: Session = Depends(get_db)):
+    id_usuario = get_userId(db, r)
     dados = ExtrairDados(str(request.link)).extrair()
-    return str(dados)
+    retorno = LancamentoRepository.salvarQrcode(
+        db, dados, id_usuario, request
+    )
+    return 'Dados importados com sucesso' if retorno else 'Erro ao importar dados'
