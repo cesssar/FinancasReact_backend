@@ -7,11 +7,14 @@ class ExtrairDados:
     def __init__(self, url):
         self.url = url
 
-    def __recupera_chave(self):
+    def __recupera_chave(self) -> str:
         if 'NFCE-COM.aspx?p=' in self.url:
             chave = self.url.split('p=')
             return chave[1]
-        return None
+        if 'NFCE-COM.aspx?' in self.url and 'NFCE-COM.aspx?p=' not in self.url:
+            chave = self.url.split('NFCE-COM.aspx?')
+            return chave[1]
+        return ''
 
     def __monta_link(self):
         return 'https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?p=' + self.__recupera_chave()
@@ -40,7 +43,7 @@ class ExtrairDados:
                 data.append(items)
         return json.dumps(data, indent=indent)
     
-    def __requisicao(self):
+    def __requisicao(self) -> str:
         headers = {
             "User-Agent":
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
@@ -48,9 +51,9 @@ class ExtrairDados:
         try:
             return requests.get(self.__monta_link(), headers=headers).text
         except Exception as e:
-            return None
+            return ''
         
-    def __extrair_tabela(self):
+    def __extrair_tabela(self) -> str:
         try:
             site = BeautifulSoup(self.__requisicao(), "html.parser")
             tabela = site.find_all('table')
@@ -66,7 +69,7 @@ class ExtrairDados:
                     copiar = True
             return conteudo
         except Exception as e:
-            return None
+            return ''
         
     def extrair(self):
         try:
