@@ -68,6 +68,11 @@ def listar_conta(r: Request,db: Session = Depends(get_db)):
     contas = ContaRepository.listar(db, id_usuario)
     return [ContaResponse.from_orm(conta) for conta in contas]
 
+@app.get("/cadastros/conta/{id}", tags=["Conta"],  summary="Retorna detalhes de uma conta", dependencies=[Depends(JWTBearer())])
+def get_lancamento(id: int, db: Session = Depends(get_db)):
+    c = ContaRepository.get_conta(db, id)
+    return jsonable_encoder(c)
+
 @app.post("/cadastros/conta", response_model=ContaResponse, status_code=status.HTTP_201_CREATED, tags=["Conta"],  summary="Cadastra uma nova conta", dependencies=[Depends(JWTBearer())])
 def criar_conta(r: Request, request: ContaRequest, db: Session = Depends(get_db)):
     c = Conta(**request.model_dump())
@@ -200,7 +205,7 @@ def listar_lancamento(r: Request, mes: int, ano: int, db: Session = Depends(get_
     return jsonable_encoder(l)
 
 @app.get("/cadastros/lancamento/{id}", tags=["Lançamento"],  summary="Retorna detalhes de um lançamento", dependencies=[Depends(JWTBearer())])
-def get_lancamento(r: Request, id: int, db: Session = Depends(get_db)):
+def get_lancamento(id: int, db: Session = Depends(get_db)):
     l = LancamentoRepository.get_lancamento(db, id)
     return jsonable_encoder(l)
 

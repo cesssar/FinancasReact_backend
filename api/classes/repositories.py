@@ -30,6 +30,10 @@ class ContaRepository:
         return db.query(Conta).filter(Conta.id_usuario == idUsuario).all()
     
     @staticmethod
+    def get_conta(db: Session, id: int) -> Conta:
+        return [db.query(Conta).filter(Conta.id == id).first()]
+    
+    @staticmethod
     def salvar(db: Session, conta: Conta) -> Conta:
         if conta.id:
             db.merge(conta)
@@ -256,7 +260,20 @@ class LancamentoRepository:
     @staticmethod
     def deletar(db: Session, id: int) -> bool:
         lancamento = db.query(Lancamento).filter(Lancamento.id == id).first()
-        if lancamento is not None:
+        conta = db.query(Conta).filter(Conta.id == lancamento.id_conta).first()
+        cartao = db.query(CartaoCredito).filter(CartaoCredito.id == lancamento.id_credito).first()
+        conta_creditada = None
+        cartao_creditado = None
+        if conta is not None:
+            conta.saldo += lancamento.valor
+            conta_creditada = db.merge(conta)
+            db.commit()
+        if cartao is not None:
+            cartao.limite += lancamento.valor
+            cartao.fatura_atual -= lancamento.valor
+            cartao_creditado = db.merge(cartao)
+            db.commit()
+        if lancamento is not None and (conta_creditada is not None or cartao_creditado is not None):
             db.delete(lancamento)
             db.commit()
             return True
