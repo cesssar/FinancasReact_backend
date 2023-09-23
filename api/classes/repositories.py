@@ -22,8 +22,11 @@ class ContaRepository:
 
     @staticmethod
     def saldo(db: Session, idUsuario: int) -> float:
-        saldo = db.query(func.sum(Conta.saldo)).filter(Conta.id_usuario == idUsuario)
-        return saldo.scalar()
+        saldo = 0.0
+        resposta = db.query(func.sum(Conta.saldo).label('saldo')).filter(Conta.id_usuario == idUsuario).first()[0]
+        if resposta > 0.0:
+            return float(resposta)
+        return saldo
 
     @staticmethod
     def listar(db: Session, idUsuario:int) -> list[Conta]:
@@ -71,13 +74,19 @@ class CartaoCreditoRepository:
 
     @staticmethod
     def fatura_atual(db: Session, idUsuario: int) -> float:
-        fatura_atual = db.query(func.sum(CartaoCredito.fatura_atual)).filter(CartaoCredito.id_usuario == idUsuario, CartaoCredito.tipo == 'c')
-        return fatura_atual.scalar()
+        fatura = 0.0
+        resposta = db.query(func.sum(CartaoCredito.fatura_atual).label('fatura')).filter(CartaoCredito.id_usuario == idUsuario, CartaoCredito.tipo == 'c').first()[0]
+        if resposta > 0.0:
+            return float(resposta)
+        return fatura
     
     @staticmethod
     def limite_credito(db: Session, idUsuario: int, tipo: str) -> float:
-        limite = db.query(func.sum(CartaoCredito.limite)).filter(CartaoCredito.id_usuario == idUsuario, CartaoCredito.tipo == tipo)
-        return limite.scalar()
+        limite = 0.0
+        resposta = db.query(func.sum(CartaoCredito.limite).label('limite')).filter(CartaoCredito.id_usuario == idUsuario, CartaoCredito.tipo == tipo).first()[0]
+        if resposta > 0.0:
+            return float(resposta)
+        return float(limite)
 
     @staticmethod
     def listar(db: Session, id_usuario: int) -> list[CartaoCredito]:

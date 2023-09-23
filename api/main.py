@@ -112,13 +112,13 @@ def debitar_creditar(id: int, valor: float, db: Session = Depends(get_db)):
 def fatura_atual(r: Request,db: Session = Depends(get_db)) -> float:
     id_usuario = get_userId(db, r)
     fatura = CartaoCreditoRepository.fatura_atual(db, id_usuario)
-    return jsonable_encoder(fatura) if fatura else None
+    return jsonable_encoder(fatura)
 
 @app.get("/backend/limite/cartaocredito", tags=["Cartão Crédito"],  summary="Retorna limite disponível", dependencies=[Depends(JWTBearer())])
-def fatura_atual(r: Request,db: Session = Depends(get_db), tipo: str = 'c') -> float:
+def limite(r: Request,db: Session = Depends(get_db), tipo: str = 'c') -> float:
     id_usuario = get_userId(db, r)
     limite = CartaoCreditoRepository.limite_credito(db, id_usuario, tipo)
-    return jsonable_encoder(limite) if limite else None
+    return jsonable_encoder(limite)
 
 @app.get("/backend/cadastros/cartaocredito", response_model=list[CartaoCreditoResponse], tags=["Cartão Crédito"],  summary="Lista os cartões de crédito cadastrados", dependencies=[Depends(JWTBearer())])
 def listar_cartaocredito(r: Request,db: Session = Depends(get_db)):
