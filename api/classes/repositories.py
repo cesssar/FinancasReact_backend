@@ -93,6 +93,10 @@ class CartaoCreditoRepository:
         return db.query(CartaoCredito).filter(CartaoCredito.id_usuario == id_usuario).all()
     
     @staticmethod
+    def get_cartao(db: Session, id: int) -> Conta:
+        return [db.query(CartaoCredito).filter(CartaoCredito.id == id).first()]
+    
+    @staticmethod
     def salvar(db: Session, cartao: CartaoCredito) -> CartaoCredito:
         if cartao.id:
             db.merge(cartao)

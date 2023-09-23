@@ -126,6 +126,11 @@ def listar_cartaocredito(r: Request,db: Session = Depends(get_db)):
     contas = CartaoCreditoRepository.listar(db, id_usuario)
     return [CartaoCreditoResponse.from_orm(conta) for conta in contas]
 
+@app.get("/backend/cadastros/cartaocredito/{id}", tags=["Cartão Crédito"],  summary="Retorna detalhes de um cartão de crédito", dependencies=[Depends(JWTBearer())])
+def get_cartaocredito(id: int, db: Session = Depends(get_db)):
+    c = CartaoCreditoRepository.get_cartao(db, id)
+    return jsonable_encoder(c)
+
 @app.post("/backend/cadastros/cartaocredito", response_model=CartaoCreditoResponse, status_code=status.HTTP_201_CREATED, tags=["Cartão Crédito"],  summary="Cadastra um novo cartão de crédito", dependencies=[Depends(JWTBearer())])
 def criar_cartao(r: Request, request: CartaoCreditoRequest, db: Session = Depends(get_db)):
     id_usuario = get_userId(db, r)
