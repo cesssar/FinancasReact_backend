@@ -132,7 +132,7 @@ def criar_cartao(r: Request, request: CartaoCreditoRequest, db: Session = Depend
     cartao = CartaoCredito(**request.model_dump())
     cartao.id_usuario = id_usuario
     c = CartaoCreditoRepository.salvar(db, cartao)
-    return CartaoCreditoRepository.from_orm(c)
+    return CartaoCreditoResponse.from_orm(c)
 
 @app.delete("/backend/cadastros/cartaocredito/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Cartão Crédito"],  summary="Deleta um cartão de crédito zerado e sem lançamentos", dependencies=[Depends(JWTBearer())])
 def deletar_cartao(id: int, db: Session = Depends(get_db)):

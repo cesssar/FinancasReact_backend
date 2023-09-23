@@ -105,7 +105,7 @@ class CartaoCreditoRepository:
     def deletar(db: Session, id: int) -> bool:
         cartao = db.query(CartaoCredito).filter(CartaoCredito.id == id).first()
         lancamento = db.query(Lancamento).filter(Lancamento.id_credito == id).all()
-        if cartao is not None and cartao.limite == 0.0 and cartao.fatura_atual == 0.0 and lancamento is None:
+        if cartao is not None and cartao.limite == 0.0 and cartao.fatura_atual == 0.0 and len(lancamento) == 0:
             db.delete(cartao)
             db.commit()
             return True
