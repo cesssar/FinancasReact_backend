@@ -94,7 +94,18 @@ class CartaoCreditoRepository:
     
     @staticmethod
     def get_cartao(db: Session, id: int) -> Conta:
-        return [db.query(CartaoCredito).filter(CartaoCredito.id == id).first()]
+        cartao = []
+        dados = db.query(CartaoCredito.id.label('id'), CartaoCredito.banco.label('banco'), CartaoCredito.fatura_atual.label('fatura_atual'), CartaoCredito.limite.label('limite'), CartaoCredito.dia_corte.label('dia_corte'), TipoCartao.descricao.label('descricao')).filter(CartaoCredito.id == id, TipoCartao.id == CartaoCredito.tipo).first()
+        linha = {
+            "banco": dados.banco,
+            "fatura_atual": dados.fatura_atual,
+            "tipo": dados.descricao,
+            "id": dados.id,
+            "limite": dados.limite,
+            "dia_corte": dados.dia_corte
+        }
+        cartao.append(linha)
+        return cartao
     
     @staticmethod
     def salvar(db: Session, cartao: CartaoCredito) -> CartaoCredito:
