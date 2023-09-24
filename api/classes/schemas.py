@@ -52,14 +52,14 @@ class CartaoCreditoBase(BaseModel):
     limite: float
     fatura_atual: float
     dia_corte: int
-    tipo: str
+    tipo: int
 
 class CartaoCreditoRequest(BaseModel):
     banco: str
     limite: float
     fatura_atual: float
     dia_corte: int
-    tipo: str
+    tipo: int
 
 class CartaoCreditoResponse(CartaoCreditoBase):
     id: int

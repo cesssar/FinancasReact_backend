@@ -17,7 +17,7 @@ class CartaoCredito(Base):
     limite = Column(Float)
     fatura_atual = Column(Float)
     dia_corte = Column(Integer)
-    tipo = Column(String)
+    tipo = Column(Integer)
 
 class TipoCartao(Base):
     __tablename__ = "tipocartao"
