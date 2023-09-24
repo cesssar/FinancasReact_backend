@@ -240,7 +240,7 @@ def deletar_lancamento(id: int, db: Session = Depends(get_db)):
         )
     return Response(status_code=status.HTTP_200_OK)
 
-@app.get("/backend/lancamento/ultimos", tags=["Lançamento"],  summary="Recupera últimos sete dias")
+@app.get("/backend/lancamento/ultimos", tags=["Lançamento"],  summary="Recupera últimos sete dias", dependencies=[Depends(JWTBearer())])
 def ultimos_dias(r: Request, db: Session = Depends(get_db)):
     id_usuario = get_userId(db, r)
     u = LancamentoRepository.get_ultimos_dias(db, id_usuario)

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from classes.models import *
 from classes.schemas import QrcodeRequest, LancamentoRequest
@@ -224,7 +224,7 @@ class LancamentoRepository:
         for d, v in result:
             retorno.append(
                 {
-                    "data": d,
+                    "data": d.strftime('%Y-%m-%d'),
                     "quantidade": v
                 }
             )
