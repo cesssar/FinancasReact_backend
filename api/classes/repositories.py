@@ -220,12 +220,12 @@ class LancamentoRepository:
         inicio = date.today() + timedelta(days=-7)
         fim = date.today()
         retorno = []
-        result = db.query(Lancamento.data, func.sum(Lancamento.valor).label('quantidade')).filter(Lancamento.data.between(inicio,fim), Lancamento.id_usuario == id_usuario).group_by(Lancamento.data).order_by(Lancamento.data).all()
+        result = db.query(Lancamento.data, func.sum(Lancamento.valor).label('valor')).filter(Lancamento.data.between(inicio,fim), Lancamento.id_usuario == id_usuario).group_by(Lancamento.data).order_by(Lancamento.data).all()
         for d, v in result:
             retorno.append(
                 {
                     "data": d.strftime('%Y-%m-%d'),
-                    "quantidade": v
+                    "valor": v
                 }
             )
         return retorno
