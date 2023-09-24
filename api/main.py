@@ -240,6 +240,12 @@ def deletar_lancamento(id: int, db: Session = Depends(get_db)):
         )
     return Response(status_code=status.HTTP_200_OK)
 
+@app.get("/backend/lancamento/ultimos", tags=["Lançamento"],  summary="Recupera últimos sete dias")
+def ultimos_dias(r: Request, db: Session = Depends(get_db)):
+    id_usuario = get_userId(db, r)
+    u = LancamentoRepository.get_ultimos_dias(db, id_usuario)
+    return jsonable_encoder(u)
+
 
 @app.post("/backend/cadastros/qrcode/" , tags=["Lançamento"],  summary="", dependencies=[Depends(JWTBearer())])
 def qrcode(r: Request,request: QrcodeRequest, db: Session = Depends(get_db)):

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
-import json
+from datetime import date, timedelta
 
 from classes.models import *
 from classes.schemas import QrcodeRequest, LancamentoRequest
@@ -214,6 +214,21 @@ class LancamentoRepository:
             }
             lancamentos.append(linha)
         return lancamentos
+    
+    @staticmethod
+    def get_ultimos_dias(db: Session, id_usuario: int):
+        inicio = date.today() + timedelta(days=-7)
+        fim = date.today()
+        retorno = []
+        result = db.query(Lancamento.data, func.sum(Lancamento.valor).label('quantidade')).filter(Lancamento.data.between(inicio,fim), Lancamento.id_usuario == id_usuario).group_by(Lancamento.data).order_by(Lancamento.data).all()
+        for d, v in result:
+            retorno.append(
+                {
+                    "data": d,
+                    "quantidade": v
+                }
+            )
+        return retorno
 
     @staticmethod
     def get_lancamento(db: Session, id: int) -> list[Lancamento]:
