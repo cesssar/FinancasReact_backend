@@ -22,8 +22,6 @@ class CartaoCredito(Base):
 class TipoCartao(Base):
     __tablename__ = "tipocartao"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    id_usuario = Column(Integer)
-    tipo = Column(String)
     descricao = Column(String)
 
 class Categoria(Base):

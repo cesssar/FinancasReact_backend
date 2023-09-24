@@ -75,7 +75,7 @@ class CartaoCreditoRepository:
     @staticmethod
     def fatura_atual(db: Session, idUsuario: int) -> float:
         fatura = 0.0
-        resposta = db.query(func.sum(CartaoCredito.fatura_atual).label('fatura')).filter(CartaoCredito.id_usuario == idUsuario, CartaoCredito.tipo == 'c').first()[0]
+        resposta = db.query(func.sum(CartaoCredito.fatura_atual).label('fatura')).filter(CartaoCredito.id_usuario == idUsuario, CartaoCredito.tipo == 1).first()[0]
         if resposta > 0.0:
             return float(resposta)
         return fatura
