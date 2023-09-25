@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
 from datetime import date, timedelta, datetime
+import json
 
 from classes.models import *
 from classes.schemas import QrcodeRequest, LancamentoRequest
@@ -225,6 +226,19 @@ class LancamentoRepository:
             retorno.append(
                 {
                     "data": d.strftime('%Y-%m-%d'),
+                    "valor": v
+                }
+            )
+        return retorno
+    
+    @staticmethod
+    def get_por_categoria(db: Session, id_usuario: int):
+        retorno = []
+        result = db.query(Categoria.categoria, func.sum(Lancamento.valor).label('valor')).filter(Categoria.id == Lancamento.id_categoria, Lancamento.id_usuario == id_usuario).group_by(Categoria.categoria).all()
+        for c, v in result:
+            retorno.append(
+                {
+                    "categoria": c,
                     "valor": v
                 }
             )

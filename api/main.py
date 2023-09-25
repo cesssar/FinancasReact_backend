@@ -246,6 +246,11 @@ def ultimos_dias(r: Request, db: Session = Depends(get_db)):
     u = LancamentoRepository.get_ultimos_dias(db, id_usuario)
     return jsonable_encoder(u)
 
+@app.get("/backend/lancamento/categoria", tags=["Lançamento"],  summary="Retorna valores gastos por categoria", dependencies=[Depends(JWTBearer())])
+def por_categoria(r: Request, db: Session = Depends(get_db)):
+    id_usuario = get_userId(db, r)
+    u = LancamentoRepository.get_por_categoria(db, id_usuario)
+    return jsonable_encoder(u)
 
 @app.post("/backend/cadastros/qrcode/" , tags=["Lançamento"],  summary="", dependencies=[Depends(JWTBearer())])
 def qrcode(r: Request,request: QrcodeRequest, db: Session = Depends(get_db)):
