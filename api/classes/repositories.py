@@ -214,6 +214,8 @@ class LancamentoRepository:
                 "id": l.id
             }
             lancamentos.append(linha)
+        #ordena os dados no array ao invés de pedir ao banco de dados para ordenar
+        lancamentos = sorted(lancamentos, key=lambda k: k['data'])
         return lancamentos
     
     @staticmethod
